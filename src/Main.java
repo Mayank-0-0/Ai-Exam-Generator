@@ -3,7 +3,11 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.http.*;
 import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
+
 import java.io.BufferedReader;
+import java.util.List;
+
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
 
@@ -36,10 +40,7 @@ public class Main {
                             [
                                 {
                                     "question": "string",
-                                    "optionA": "string",
-                                    "optionB": "string",
-                                    "optionC": "string",
-                                    "optionD": "string",
+                                    "options": ["optionA","optionB","optionC","optionD"],
                                     "answer": "A/B/C/D"
                                 }
                             ]
@@ -71,7 +72,29 @@ public class Main {
 
         HttpResponse<String> response=client.send(request,HttpResponse.BodyHandlers.ofString());
 
-        System.out.println(response.body());
+        JsonObject root=JsonParser.parseString((response.body())).getAsJsonObject();
+        String content = root
+                .getAsJsonArray("choices")
+                .get(0).getAsJsonObject()
+                .getAsJsonObject("message")
+                .get("content").getAsString();
+        content = content.trim();
+        if(content.startsWith("```")){
+            content=content.replace("```json","")
+                    .replace("```","")
+                    .trim();
+        }
+        Gson gson= new Gson();
+        List<MCQ> mcqlist=gson.fromJson(content,new TypeToken<List<MCQ>>(){}.getType());
 
+        for(int i=0;i<mcqlist.size();i++){
+            MCQ q=mcqlist.get(i);
+            System.out.println((i+1)+") "+q.getQuestion()+"\n");
+            for(int j=0;j<q.getOptions().size();j++){
+                System.out.println((char)(65+j) +"-> "+q.getOptions().get(j));
+            }
+            System.out.println("Answer :"+q.getAnswer());
+            System.out.println("\n");
+        }
     }
 }
