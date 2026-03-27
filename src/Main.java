@@ -1,6 +1,77 @@
-
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.http.*;
+import com.google.gson.*;
+import java.io.BufferedReader;
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, InterruptedException {
+
+        InputStreamReader in =new InputStreamReader(System.in);
+        BufferedReader bf = new BufferedReader(in);
+
+        System.out.println("Enter your subject :");
+        String subject = bf.readLine();
+
+        System.out.println("Enter topic or chapter name :");
+        String topic = bf.readLine();
+
+        System.out.println("Enter number of question :");
+        String input = bf.readLine();
+        int noOfQues = Integer.parseInt(input);
+
+        String prompt = """
+                            You are a %s professor.
+
+                            Generate exactly %d multiple-choice questions on the topic "%s".
+
+                            STRICT RULES:
+                                - Output ONLY valid JSON.
+                                - Do NOT include explanations, headings, or extra text.
+                                - Do NOT include markdown or code blocks.
+                                - Ensure all keys and values are properly quoted.
+                                - Ensure valid JSON array format.
+
+                            Format:
+                            [
+                                {
+                                    "question": "string",
+                                    "optionA": "string",
+                                    "optionB": "string",
+                                    "optionC": "string",
+                                    "optionD": "string",
+                                    "answer": "A/B/C/D"
+                                }
+                            ]
+                        """.formatted(subject, noOfQues, topic);
+
+        JsonObject body = new JsonObject();
+        body.addProperty("model", "llama-3.1-8b-instant");
+
+        JsonArray messages = new JsonArray();
+        JsonObject msg = new JsonObject();
+        msg.addProperty("role", "user");
+        msg.addProperty("content", prompt);
+
+        messages.add(msg);
+        body.add("messages", messages);
+
+        String requestBody = new Gson().toJson(body);
+
+        String key=System.getenv("GROQ_API_KEY");
+
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.groq.com/openai/v1/chat/completions"))
+                .header("Authorization", "Bearer "+key)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build();
+
+        HttpResponse<String> response=client.send(request,HttpResponse.BodyHandlers.ofString());
+
+        System.out.println(response.body());
 
     }
 }
