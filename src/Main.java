@@ -96,6 +96,7 @@ public class Main {
 
         QuestionDAO con1 = new QuestionDAO();
         SubjectDAO con2 = new SubjectDAO();
+        ExamDAO con3 = new ExamDAO();
 
         for(int i=0;i<mcqlist.size();i++)
         {
@@ -110,8 +111,12 @@ public class Main {
             ques.add(question);
         }
 
-        con2.insertSubject(subject);
+        int subjectKey;
+        int examKey;
+        subjectKey=con2.insertSubject(subject);
+        examKey=con3.insertExam(subjectKey);
         con1.insertQuestion(ques);
+
         for(int i=0;i<mcqlist.size();i++)
         {
             MCQ q=mcqlist.get(i);

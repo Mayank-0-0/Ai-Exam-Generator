@@ -1,17 +1,27 @@
 package dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class SubjectDAO {
-    public void insertSubject(String subject)throws SQLException {
-        String query="INSERT INTO subject (subject_name) VALUES (?)";
-        try(Connection con=MySqlConnection.getConnection();
-        PreparedStatement ps =con.prepareStatement(query))
+    public int insertSubject(String subject)throws SQLException {
+        try(Connection con=MySqlConnection.getConnection())
         {
-            ps.setString(1,subject);
-            ps.executeUpdate();
-        }
+            String query="SELECT subject_id FROM subject WHERE subject_name = ?";
+            PreparedStatement ps1 =con.prepareStatement(query);
+            ps1.setString(1,subject);
+            ResultSet rs1= ps1.executeQuery();
+
+            String insert = "INSERT INTO subject(subject_name) VALUES(?)";
+            PreparedStatement ps2 = con.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS);
+            ps2.setString(1, subject);
+            ps2.executeUpdate();
+            try(ResultSet rs2=ps2.getGeneratedKeys())
+            {
+                if(rs2.next())
+                {
+                    return rs2.getInt(1);
+                }
+            }
+        }return -1;
     }
 }
