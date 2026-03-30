@@ -4,12 +4,15 @@ import java.net.URI;
 import java.net.http.*;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-
+import model.MCQ;
 import java.io.BufferedReader;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import dao.*;
 
 public class Main {
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws IOException, InterruptedException, SQLException {
 
         InputStreamReader in =new InputStreamReader(System.in);
         BufferedReader bf = new BufferedReader(in);
@@ -79,7 +82,8 @@ public class Main {
                 .getAsJsonObject("message")
                 .get("content").getAsString();
         content = content.trim();
-        if(content.startsWith("```")){
+        if(content.startsWith("```"))
+        {
             content=content.replace("```json","")
                     .replace("```","")
                     .trim();
@@ -87,10 +91,33 @@ public class Main {
         Gson gson= new Gson();
         List<MCQ> mcqlist=gson.fromJson(content,new TypeToken<List<MCQ>>(){}.getType());
 
-        for(int i=0;i<mcqlist.size();i++){
+
+        List<Question> ques =new ArrayList<>();
+
+        QuestionDAO con1 = new QuestionDAO();
+        SubjectDAO con2 = new SubjectDAO();
+
+        for(int i=0;i<mcqlist.size();i++)
+        {
+            MCQ q = mcqlist.get(i);
+            Question question = new Question();
+            question.setQuestion_Text(q.getQuestion());
+            question.setAnswer(q.getAnswer());
+            question.setOptionA(q.getOptions().get(0));
+            question.setOptionB(q.getOptions().get(1));
+            question.setOptionC(q.getOptions().get(2));
+            question.setOptionD(q.getOptions().get(3));
+            ques.add(question);
+        }
+
+        con2.insertSubject(subject);
+        con1.insertQuestion(ques);
+        for(int i=0;i<mcqlist.size();i++)
+        {
             MCQ q=mcqlist.get(i);
             System.out.println((i+1)+") "+q.getQuestion()+"\n");
-            for(int j=0;j<q.getOptions().size();j++){
+            for(int j=0;j<q.getOptions().size();j++)
+            {
                 System.out.println((char)(65+j) +"-> "+q.getOptions().get(j));
             }
             System.out.println("Answer :"+q.getAnswer());
