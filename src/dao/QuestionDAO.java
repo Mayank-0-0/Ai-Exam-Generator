@@ -2,8 +2,9 @@ package dao;
 import java.sql.*;
 import java.util.*;
 public class QuestionDAO {
-    public void insertQuestion(List<Question> quest )throws SQLException{
+    public List<Integer> insertQuestion(List<Question> quest )throws SQLException{
         String query = "INSERT INTO questions (question,option_A,option_B,option_C,option_D,answer,subject_id) VALUES (?,?,?,?,?,?,?)";
+        List<Integer> quesList=new ArrayList<>();
         try(Connection con=MySqlConnection.getConnection();
         PreparedStatement ps = con.prepareStatement(query))
         {
@@ -19,6 +20,11 @@ public class QuestionDAO {
                 ps.addBatch(query);
             }
             ps.executeBatch();
-        }
+            try(ResultSet rs= ps.getGeneratedKeys()){
+                while(rs.next()){
+                    quesList.add(rs.getInt(1));
+                }
+            }
+        }return quesList;
     }
 }
