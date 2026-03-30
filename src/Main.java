@@ -90,8 +90,6 @@ public class Main {
         }
         Gson gson= new Gson();
         List<MCQ> mcqlist=gson.fromJson(content,new TypeToken<List<MCQ>>(){}.getType());
-
-
         List<Question> ques =new ArrayList<>();
 
         QuestionDAO con1 = new QuestionDAO();
@@ -99,12 +97,15 @@ public class Main {
         ExamDAO con3 = new ExamDAO();
         ExamQuestionDAO con4 = new ExamQuestionDAO();
 
+        int subjectKey;
+        subjectKey=con2.insertSubject(subject);
         for(int i=0;i<mcqlist.size();i++)
         {
             MCQ q = mcqlist.get(i);
             Question question = new Question();
             question.setQuestion_Text(q.getQuestion());
             question.setAnswer(q.getAnswer());
+            question.setSubjectID(subjectKey);
             question.setOptionA(q.getOptions().get(0));
             question.setOptionB(q.getOptions().get(1));
             question.setOptionC(q.getOptions().get(2));
@@ -112,13 +113,14 @@ public class Main {
             ques.add(question);
         }
 
-        int subjectKey;
         int examKey;
-        subjectKey=con2.insertSubject(subject);
+
+        List<Integer>ques_id=con1.insertQuestion(ques);
         examKey=con3.insertExam(subjectKey);
 
-
-        con1.insertQuestion(ques);
+        for(int i=0;i<ques_id.size();i++){
+            con4.mapExamToQuestion(examKey,ques_id.get(i));
+        }
 
         for(int i=0;i<mcqlist.size();i++)
         {
