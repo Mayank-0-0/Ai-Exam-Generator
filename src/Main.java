@@ -19,6 +19,7 @@ public class Main {
 
         System.out.println("Enter your subject :");
         String subject = bf.readLine();
+        String lwr_subject=subject.toLowerCase();
 
         System.out.println("Enter topic or chapter name :");
         String topic = bf.readLine();
@@ -98,7 +99,7 @@ public class Main {
         ExamQuestionDAO con4 = new ExamQuestionDAO();
 
         int subjectKey;
-        subjectKey=con2.insertSubject(subject);
+        subjectKey=con2.insertSubject(lwr_subject);
         for(int i=0;i<mcqlist.size();i++)
         {
             MCQ q = mcqlist.get(i);
