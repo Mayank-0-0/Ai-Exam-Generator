@@ -100,9 +100,7 @@ public class Main {
 
         int subjectKey;
         subjectKey=con2.insertSubject(lwr_subject);
-        for(int i=0;i<mcqlist.size();i++)
-        {
-            MCQ q = mcqlist.get(i);
+        for (MCQ q : mcqlist) {
             Question question = new Question();
             question.setQuestion_Text(q.getQuestion());
             question.setAnswer(q.getAnswer());
@@ -119,8 +117,8 @@ public class Main {
         List<Integer>ques_id=con1.insertQuestion(ques);
         examKey=con3.insertExam(subjectKey);
 
-        for(int i=0;i<ques_id.size();i++){
-            con4.mapExamToQuestion(examKey,ques_id.get(i));
+        for (Integer integer : ques_id) {
+            con4.mapExamToQuestion(examKey, integer);
         }
 
         for(int i=0;i<mcqlist.size();i++)
