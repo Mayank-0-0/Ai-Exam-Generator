@@ -18,6 +18,7 @@ public class Main {
         BufferedReader bf = new BufferedReader(in);
 
         System.out.println("Enter your subject :");
+
         String subject = bf.readLine();
         String lwr_subject=subject.toLowerCase();
 
