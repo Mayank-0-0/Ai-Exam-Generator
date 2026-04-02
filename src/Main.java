@@ -10,9 +10,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import dao.*;
-
+import ui.*;
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException, SQLException {
+
+        MainLayout layout = new MainLayout();
 
         InputStreamReader in =new InputStreamReader(System.in);
         BufferedReader bf = new BufferedReader(in);
