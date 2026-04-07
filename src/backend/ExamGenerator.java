@@ -9,6 +9,7 @@ import dao.*;
 import model.MCQ;
 
 import java.io.IOException;
+import java.io.LineNumberInputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -18,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExamGenerator {
-    public void generateExam(String subject,String topic, int numberOfQues )throws IOException, InterruptedException, SQLException {
+    public List<MCQ> generateExam(String subject, String topic, int numberOfQues )throws IOException, InterruptedException, SQLException {
         String prompt = """
                             You are a %s professor.
 
@@ -82,6 +83,9 @@ public class ExamGenerator {
         }
         Gson gson= new Gson();
         List<MCQ> mcqlist=gson.fromJson(content,new TypeToken<List<MCQ>>(){}.getType());
+        return mcqlist;
+    }
+    public void dbInsertion(List<MCQ> mcqlist,String subject) throws SQLException{
         List<Question> ques =new ArrayList<>();
 
         QuestionDAO con1 = new QuestionDAO();
@@ -112,16 +116,6 @@ public class ExamGenerator {
             con4.mapExamToQuestion(examKey, integer);
         }
 
-        for(int i=0;i<mcqlist.size();i++)
-        {
-            MCQ q=mcqlist.get(i);
-            System.out.println((i+1)+") "+q.getQuestion()+"\n");
-            for(int j=0;j<q.getOptions().size();j++)
-            {
-                System.out.println((char)(65+j) +"-> "+q.getOptions().get(j));
-            }
-            System.out.println("Answer :"+q.getAnswer());
-            System.out.println("\n");
-        }
     }
 }
+
