@@ -1,5 +1,7 @@
 package ui;
 import backend.ExamGenerator;
+import model.MCQ;
+import java.util.List;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -54,11 +56,14 @@ public class MainLayout extends JFrame implements ActionListener {
             String topic=topic_textField.getText().toLowerCase();
             int noq=Integer.parseInt(numberOfQuestion_textField.getText());
             ExamGenerator exam=new ExamGenerator();
+            List<MCQ> mcqlist;
             try {
-                exam.generateExam(subject,topic,noq);
+                mcqlist=exam.generateExam(subject,topic,noq);
+                new FormEditor(mcqlist,subject);
             } catch (IOException | InterruptedException | SQLException ex) {
                 throw new RuntimeException(ex);
             }
         }
     }
 }
+   
