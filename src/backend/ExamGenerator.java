@@ -9,7 +9,6 @@ import dao.*;
 import model.MCQ;
 
 import java.io.IOException;
-import java.io.LineNumberInputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -19,28 +18,53 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExamGenerator {
-    public List<MCQ> generateExam(String subject, String topic, int numberOfQues )throws IOException, InterruptedException, SQLException {
-        String prompt = """
-                            You are a %s professor.
+    public List<MCQ> generateExam(String subject, String topic, int numberOfQues ,String description)throws IOException, InterruptedException, SQLException {
+        String prompt;
+        if(!description.isEmpty()) {
+            prompt = """
+                        You are a %s professor.
 
-                            Generate exactly %d multiple-choice questions on the topic "%s".
+                        Generate exactly %d multiple-choice questions on the topic "%s".
+                        More details about question "%s".
+                        STRICT RULES:
+                            - Output ONLY valid JSON.
+                            - Do NOT include explanations, headings, or extra text.
+                            - Do NOT include markdown or code blocks.
+                            - Ensure all keys and values are properly quoted.
+                            - Ensure valid JSON array format.
 
-                            STRICT RULES:
-                                - Output ONLY valid JSON.
-                                - Do NOT include explanations, headings, or extra text.
-                                - Do NOT include markdown or code blocks.
-                                - Ensure all keys and values are properly quoted.
-                                - Ensure valid JSON array format.
+                        Format:
+                        [
+                            {
+                                "question": "string",
+                                "options": ["optionA","optionB","optionC","optionD"],
+                                "answer": "A/B/C/D"
+                            }
+                        ]
+                    """.formatted(subject, numberOfQues, topic, description);
+        }else {
+            prompt = """
+                        You are a %s professor.
 
-                            Format:
-                            [
-                                {
-                                    "question": "string",
-                                    "options": ["optionA","optionB","optionC","optionD"],
-                                    "answer": "A/B/C/D"
-                                }
-                            ]
-                        """.formatted(subject, numberOfQues, topic);
+                        Generate exactly %d multiple-choice questions on the topic "%s".
+
+                        STRICT RULES:
+                            - Output ONLY valid JSON.
+                            - Do NOT include explanations, headings, or extra text.
+                            - Do NOT include markdown or code blocks.
+                            - Ensure all keys and values are properly quoted.
+                            - Ensure valid JSON array format.
+
+                        Format:
+                        [
+                            {
+                                "question": "string",
+                                "options": ["optionA","optionB","optionC","optionD"],
+                                "answer": "A/B/C/D"
+                            }
+                        ]
+                    """.formatted(subject, numberOfQues, topic);
+        }
 
         JsonObject body = new JsonObject();
         body.addProperty("model", "llama-3.1-8b-instant");
